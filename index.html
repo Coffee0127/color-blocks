@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Color Craft</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <style>
+    .color-block {
+      width: 100px;
+      height: 100px;
+      margin: 5px;
+    }
+
+    .color-block.highlighted img {
+      border: 1px dashed black;
+    }
+  </style>
+</head>
+
+<body>
+<div class="container">
+  <div id="screen1" class="screen d-flex flex-column align-items-center">
+    <h1>Color Selection</h1>
+    <div class="btn-group">
+      <button class="color-btn btn btn-danger" data-color="red">Red</button>
+      <button class="color-btn btn btn-success" data-color="green">Green</button>
+      <button class="color-btn btn btn-warning" data-color="yellow">Yellow</button>
+      <button class="color-btn btn btn-primary" data-color="blue">Blue</button>
+    </div>
+  </div>
+
+  <div id="screen2" class="screen d-none flex-column align-items-center">
+    <h1>Difficulty Selection</h1>
+    <div class="btn-group">
+      <button class="difficulty-btn btn btn-secondary" data-difficulty="low">Low</button>
+      <button class="difficulty-btn btn btn-secondary" data-difficulty="medium">Medium</button>
+      <button class="difficulty-btn btn btn-secondary" data-difficulty="high">High</button>
+    </div>
+  </div>
+
+  <div id="screen3" class="screen d-none flex-column align-items-center">
+    <h2>Difficulty: <span id="selectedDifficulty"></span></h2>
+    <div id="timer" class="mt-2"></div>
+    <button id="finishBtn" class="btn btn-primary mt-2">Finish</button>
+    <div id="colorBlocks" class="row"></div>
+  </div>
+
+  <div id="screen4" class="screen d-none flex-column align-items-center">
+    <h1>Result</h1>
+    <div id="result"></div>
+    <button id="restartBtn" class="btn btn-primary mt-2">Restart</button>
+  </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script>
+  // Global variables
+  let selectedColor = "";
+  let selectedDifficulty = "";
+  let selectedIndex = -1;
+  let colorBlocksOrder = [];
+  let timerInterval;
+
+  // Screen 1: Color Selection
+  $(".color-btn").click(function () {
+    selectedColor = $(this).data("color");
+    showScreen2();
+  });
+
+  function showScreen2() {
+    hideAllScreen();
+    showScreen("screen2");
+  }
+
+  // Screen 2: Difficulty Selection
+  $(".difficulty-btn").click(function () {
+    selectedDifficulty = $(this).data("difficulty");
+    showScreen3();
+  });
+
+  function showScreen3() {
+    hideAllScreen();
+    showScreen("screen3");
+    generateColorBlocks();
+    startTimer();
+  }
+
+  // Screen 3: Color Blocks
+  function generateColorBlocks() {
+    let maxBlocksCount;
+    switch (selectedDifficulty) {
+      case "low":
+        maxBlocksCount = 12;
+        break;
+      case "medium":
+        maxBlocksCount = 24;
+        break;
+      case "high":
+        maxBlocksCount = 48;
+        break;
+    }
+
+    const availableColorBlocks = [];
+    for (let i = 1; i <= 48; i++) {
+      availableColorBlocks.push(i);
+    }
+
+    $('#selectedDifficulty').text(selectedDifficulty);
+
+    for (let i = 1; i <= maxBlocksCount; i++) {
+      const randomIndex = Math.floor(Math.random() * availableColorBlocks.length);
+      const blockSerial = availableColorBlocks.splice(randomIndex, 1)[0];
+      colorBlocksOrder.push(blockSerial);
+    }
+
+    drawSquare();
+  }
+
+  const $colorBlocks = $("#colorBlocks");
+
+  function drawSquare() {
+    $colorBlocks.empty();
+
+    for (const blockSerial of colorBlocksOrder) {
+      const colorBlock = $("<div>").addClass("color-block");
+      const imgName = `${selectedColor}-${blockSerial}.png`;
+      const img = $("<img>")
+        .attr({
+          "src": `/assets/images/${imgName}`,
+          "alt": imgName
+        })
+        .addClass("img-fluid");
+      colorBlock.append(img);
+      $colorBlocks.append(colorBlock);
+
+      // Highlight and swap color blocks
+      colorBlock.click(function () {
+        // click itself
+        if (colorBlock.hasClass("highlighted")) {
+          colorBlock.removeClass("highlighted");
+          selectedIndex = -1;
+          return;
+        }
+
+        const currentIndex = colorBlocksOrder.indexOf(blockSerial);
+        if (selectedIndex !== -1 && selectedIndex !== currentIndex) {
+          $(".color-block").removeClass("highlighted");
+          [colorBlocksOrder[currentIndex], colorBlocksOrder[selectedIndex]] = [colorBlocksOrder[selectedIndex], colorBlocksOrder[currentIndex]];
+          drawSquare();
+          selectedIndex = -1;
+          return;
+        }
+
+        colorBlock.addClass("highlighted");
+        selectedIndex = currentIndex;
+      });
+    }
+  }
+
+  function startTimer() {
+    let timeLeft = 120;
+    $("#timer").text(`Time Left: ${timeLeft} seconds`);
+
+    timerInterval = setInterval(function () {
+      timeLeft--;
+      $("#timer").text(`Time Left: ${timeLeft} seconds`);
+
+      if (timeLeft === 0) {
+        clearInterval(timerInterval);
+        showScreen4();
+      }
+    }, 1000);
+  }
+
+  $("#finishBtn").click(function () {
+    clearInterval(timerInterval);
+    showScreen4();
+  });
+
+  function showScreen4() {
+    hideAllScreen();
+    showScreen("screen4");
+    calculateResult();
+  }
+
+  // Screen 4: Result
+  function calculateResult() {
+    const userOrder = [];
+
+    const colorBlocks = $colorBlocks.children();
+    colorBlocks.each(function () {
+      let imgSrc = $(this).find("img").attr("src");
+      let serialNumber = parseInt(imgSrc.match(/\d+/)[0]);
+      userOrder.push(serialNumber);
+    });
+
+    let correctCount = 0;
+    const correctOrder = colorBlocksOrder.sort((a, b) => a - b);
+    for (let i = 0; i < userOrder.length; i++) {
+      if (userOrder[i] === correctOrder[i]) {
+        correctCount++;
+      }
+    }
+
+    let accuracy = `${correctCount} / ${colorBlocksOrder.length}`;
+    $("#result").text(`Accuracy: ${accuracy}`);
+  }
+
+  // Restart
+  $("#restartBtn").click(function () {
+    resetGame();
+    showScreen1();
+  });
+
+  function resetGame() {
+    selectedColor = "";
+    selectedDifficulty = "";
+    colorBlocksOrder = [];
+    selectedIndex = -1;
+    clearInterval(timerInterval);
+    $colorBlocks.empty();
+    $("#timer").empty();
+    $("#result").empty();
+  }
+
+  function showScreen1() {
+    hideAllScreen();
+    showScreen("screen1");
+  }
+
+  function showScreen(screenId) {
+    $(`#${screenId}`).removeClass("d-none").addClass("d-flex");
+  }
+
+  function hideAllScreen() {
+    $(".screen").addClass("d-none").removeClass("d-flex");
+  }
+</script>
+</body>
+
+</html>
