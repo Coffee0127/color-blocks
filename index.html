@@ -138,7 +138,6 @@
       const selectedColorOpacity = 0.1 + (blockSerial / MAX_AVAILABLE_COLOR_COUNT) * 0.9;
       const colorBlock = $("<div>")
         .addClass("color-block")
-        .data("serial", blockSerial)
         .text(blockSerial)  // TODO remove the debugging text
         .css("background-color", `rgba(${selectedColorRGB}, ${selectedColorOpacity})`);
       $colorBlocks.append(colorBlock);
@@ -195,18 +194,10 @@
 
   // Screen 4: Result
   function calculateResult() {
-    const userOrder = [];
-
-    const colorBlocks = $colorBlocks.children();
-    colorBlocks.each(function () {
-      const serialNumber = parseInt($(this).data("serial"));
-      userOrder.push(serialNumber);
-    });
-
     let correctCount = 0;
-    const correctOrder = colorBlocksOrder.sort((a, b) => a - b);
-    for (let i = 0; i < userOrder.length; i++) {
-      if (userOrder[i] === correctOrder[i]) {
+    const correctOrder = [...colorBlocksOrder].sort((a, b) => a - b);
+    for (let i = 0; i < correctOrder.length; i++) {
+      if (colorBlocksOrder[i] === correctOrder[i]) {
         correctCount++;
       }
     }
