@@ -7,14 +7,46 @@
   <title>Color Craft</title>
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
   <style>
+    .btn-color {
+      color: #fff;
+      background: -webkit-linear-gradient(90deg, var(--begin), var(--end));
+      background: linear-gradient(90deg, var(--begin), var(--end));
+    }
+
+    .btn-color:hover {
+      color: #fff;
+      filter: brightness(85%);
+    }
+
+    .btn-color-green-to-red {
+      --begin: rgb(38, 91, 21);
+      --end: rgb(140, 26, 36);
+    }
+
+    .btn-color-orange-to-blue {
+      --begin: rgb(235, 85, 40);
+      --end: rgb(79, 173, 169);
+    }
+
+    .btn-color-purple-to-blue {
+      --begin: rgb(79, 35, 111);
+      --end: rgb(86, 86, 246);
+    }
+
+    .btn-color-red-to-brown {
+      --begin: rgb(128, 23, 14);
+      --end: rgb(97, 68, 19);
+    }
+
     .color-block {
       width: 100px;
       height: 100px;
       margin: 5px;
+      position: relative;
     }
 
-    .color-block.highlighted {
-      border: 2px dashed black;
+    .color-block.highlighted img {
+      border: 1px dashed black;
     }
   </style>
 </head>
@@ -24,10 +56,10 @@
   <div id="screen1" class="screen d-flex flex-column align-items-center">
     <h1>Color Selection</h1>
     <div class="btn-group">
-      <button class="color-btn btn btn-danger" data-color="red">Red</button>
-      <button class="color-btn btn btn-success" data-color="green">Green</button>
-      <button class="color-btn btn btn-warning" data-color="yellow">Yellow</button>
-      <button class="color-btn btn btn-primary" data-color="blue">Blue</button>
+      <button class="color-btn btn btn-color btn-color-green-to-red" data-color="green-to-red">綠到紅</button>
+      <button class="color-btn btn btn-color btn-color-orange-to-blue" data-color="orange-to-blue">橘到藍</button>
+      <button class="color-btn btn btn-color btn-color-purple-to-blue" data-color="purple-to-blue">紫到藍</button>
+      <button class="color-btn btn btn-color btn-color-red-to-brown" data-color="red-to-brown">紅到棕</button>
     </div>
   </div>
 
@@ -41,10 +73,10 @@
   </div>
 
   <div id="screen3" class="screen d-none flex-column align-items-center">
-    <h2>Difficulty: <span id="selectedDifficulty"></span></h2>
+    <h2>Sort the color blocks from <span id="selectedColor"></span></h2>
     <div id="timer" class="mt-2"></div>
     <button id="finishBtn" class="btn btn-primary mt-2">Finish</button>
-    <div id="colorBlocks" class="row"></div>
+    <div id="colorBlocks" class="row mt-3"></div>
   </div>
 
   <div id="screen4" class="screen d-none flex-column align-items-center">
@@ -59,12 +91,7 @@
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 <script>
   const MAX_AVAILABLE_COLOR_COUNT = 48;
-  const COLOR_RGB = {
-    "red": "255, 0, 0",
-    "green": "0, 255, 0",
-    "yellow": "255, 255, 0",
-    "blue": "0, 0, 255"
-  };
+  const $colorBlocks = $("#colorBlocks");
 
   // Global variables
   let selectedColor = "";
@@ -99,47 +126,49 @@
 
   // Screen 3: Color Blocks
   function generateColorBlocks() {
-    let maxBlocksCount;
-    switch (selectedDifficulty) {
-      case "low":
-        maxBlocksCount = 12;
-        break;
-      case "medium":
-        maxBlocksCount = 24;
-        break;
-      case "high":
-        maxBlocksCount = 48;
-        break;
+    $("#selectedColor").text(selectedColor.replaceAll("-", " "));
+
+    function getBeginAndStep(selectedDifficulty) {
+      switch (selectedDifficulty) {
+        case "low":
+          return {begin: Math.floor(Math.random() * 4) + 1, step: 4};
+        case "medium":
+          return {begin: Math.floor(Math.random() * 2) + 1, step: 2};
+        case "high":
+          return {begin: 1, step: 1};
+      }
     }
 
-    const availableColorBlocks = [];
-    for (let i = 1; i <= MAX_AVAILABLE_COLOR_COUNT; i++) {
-      availableColorBlocks.push(i);
+    const {begin, step} = getBeginAndStep(selectedDifficulty);
+    colorBlocksOrder = [];
+    for (let i = begin; i <= MAX_AVAILABLE_COLOR_COUNT; i += step) {
+      const insertPosition = Math.floor(Math.random() * (colorBlocksOrder.length + 1));
+      colorBlocksOrder.splice(insertPosition, 0, i);
     }
 
-    $('#selectedDifficulty').text(selectedDifficulty);
-
-    for (let i = 1; i <= maxBlocksCount; i++) {
-      const randomIndex = Math.floor(Math.random() * availableColorBlocks.length);
-      const blockSerial = availableColorBlocks.splice(randomIndex, 1)[0];
-      colorBlocksOrder.push(blockSerial);
-    }
-
-    drawSquare();
+    drawColorBlocks();
   }
 
-  const $colorBlocks = $("#colorBlocks");
-
-  function drawSquare() {
+  function drawColorBlocks() {
     $colorBlocks.empty();
 
     for (const blockSerial of colorBlocksOrder) {
-      const selectedColorRGB = COLOR_RGB[selectedColor];
-      const selectedColorOpacity = 0.1 + (blockSerial / MAX_AVAILABLE_COLOR_COUNT) * 0.9;
-      const colorBlock = $("<div>")
-        .addClass("color-block")
-        .text(blockSerial)  // TODO remove the debugging text
-        .css("background-color", `rgba(${selectedColorRGB}, ${selectedColorOpacity})`);
+      const colorBlock = $("<div>").addClass("color-block");
+      const img = $("<img>")
+        .attr({
+          "src": `assets/images/${selectedColor}/${blockSerial}.BMP`
+        })
+        .addClass("img-fluid");
+      colorBlock.append(img);
+      // TODO: remove this debugging info
+      colorBlock.append($("<div>")
+        .css({
+          "position": "absolute",
+          "top": "5px",
+          "left": "5px",
+          "z-index": " 1"
+        })
+        .text(blockSerial));
       $colorBlocks.append(colorBlock);
 
       // Highlight and swap color blocks
@@ -155,7 +184,7 @@
         if (selectedIndex !== -1 && selectedIndex !== currentIndex) {
           $(".color-block").removeClass("highlighted");
           [colorBlocksOrder[currentIndex], colorBlocksOrder[selectedIndex]] = [colorBlocksOrder[selectedIndex], colorBlocksOrder[currentIndex]];
-          drawSquare();
+          drawColorBlocks();
           selectedIndex = -1;
           return;
         }
