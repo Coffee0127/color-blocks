@@ -183,7 +183,7 @@
         const currentIndex = colorBlocksOrder.indexOf(blockSerial);
         if (selectedIndex !== -1 && selectedIndex !== currentIndex) {
           $(".color-block").removeClass("highlighted");
-          [colorBlocksOrder[currentIndex], colorBlocksOrder[selectedIndex]] = [colorBlocksOrder[selectedIndex], colorBlocksOrder[currentIndex]];
+          colorBlocksOrder.splice(currentIndex, 0, colorBlocksOrder.splice(selectedIndex, 1)[0]);
           drawColorBlocks();
           selectedIndex = -1;
           return;
