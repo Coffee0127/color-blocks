@@ -6,6 +6,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Color Craft</title>
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <style>
+    .color-block {
+      width: 100px;
+      height: 100px;
+      margin: 5px;
+    }
+
+    .color-block.highlighted {
+      border: 2px dashed black;
+    }
+  </style>
 </head>
 
 <body>
@@ -33,11 +44,7 @@
     <h2>Difficulty: <span id="selectedDifficulty"></span></h2>
     <div id="timer" class="mt-2"></div>
     <button id="finishBtn" class="btn btn-primary mt-2">Finish</button>
-    <div class="text-center mt-2">
-      <div>Make the lightest color start from here.</div>
-      <div class="pl-3">&#8681;</div>
-    </div>
-    <canvas id="colorBlocks" style="max-height: 500px;"></canvas>
+    <div id="colorBlocks" class="row"></div>
   </div>
 
   <div id="screen4" class="screen d-none flex-column align-items-center">
@@ -50,7 +57,6 @@
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
 <script>
   const MAX_AVAILABLE_COLOR_COUNT = 48;
   const COLOR_RGB = {
@@ -66,8 +72,6 @@
   let selectedIndex = -1;
   let colorBlocksOrder = [];
   let timerInterval;
-  let colorBlocksChart;
-  let originalRadius;
 
   // Screen 1: Color Selection
   $(".color-btn").click(function () {
@@ -121,89 +125,45 @@
       colorBlocksOrder.push(blockSerial);
     }
 
-    drawBlocks();
+    drawSquare();
   }
 
-  function drawBlocks() {
-    colorBlocksChart?.destroy();
+  const $colorBlocks = $("#colorBlocks");
 
-    const chartData = colorBlocksOrder.map(_ => 1);
-    const selectedColorRGB = COLOR_RGB[selectedColor];
-    const chartBackgroundColor = colorBlocksOrder.map(blockSerial => {
+  function drawSquare() {
+    $colorBlocks.empty();
+
+    for (const blockSerial of colorBlocksOrder) {
+      const selectedColorRGB = COLOR_RGB[selectedColor];
       const selectedColorOpacity = 0.1 + (blockSerial / MAX_AVAILABLE_COLOR_COUNT) * 0.9;
-      return `rgba(${selectedColorRGB}, ${selectedColorOpacity})`;
-    });
+      const colorBlock = $("<div>")
+        .addClass("color-block")
+        .text(blockSerial)  // TODO remove the debugging text
+        .css("background-color", `rgba(${selectedColorRGB}, ${selectedColorOpacity})`);
+      $colorBlocks.append(colorBlock);
 
-    const ctx = document.getElementById('colorBlocks');
-    const data = {
-      datasets: [{
-        // data: colorBlocksOrder,
-        data: chartData,
-        backgroundColor: chartBackgroundColor
-      }]
-    };
-    const config = {
-      type: 'pie',
-      data: data,
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          tooltip: {
-            enabled: true,
-            usePointStyle: true,
-            callbacks: {
-              // for debugging
-              // label: context => {
-              //   const opacity = context.element.options.backgroundColor
-              //     .replace(`rgba(${selectedColorRGB}, `, '')
-              //     .replace(')', '');
-              //   return Math.round(opacity * 100) / 100;
-              // }
-              label: context => " " // show selected color only
-            }
-          }
-        },
-        layout: {
-          padding: 5
-        },
-        hoverOffset: 5,
-        hoverBorderColor: '#adb5bd',
-        hoverBorderWidth: 2,
-        onClick: (e, elements, chart) => {
-          const clickedElement = elements[0];
-          if (clickedElement) {
-            const currentIndex = clickedElement.index;
-
-            // click itself, restore every thing
-            if (selectedIndex === currentIndex) {
-              clickedElement.element.outerRadius = originalRadius;
-              selectedIndex = -1;
-              return;
-            }
-
-            // click the second color block
-            if (selectedIndex !== -1) {
-              [colorBlocksOrder[currentIndex], colorBlocksOrder[selectedIndex]] = [colorBlocksOrder[selectedIndex], colorBlocksOrder[currentIndex]];
-              const backgroundColors = chart.data.datasets[0].backgroundColor;
-              [backgroundColors[currentIndex], backgroundColors[selectedIndex]] = [backgroundColors[selectedIndex], backgroundColors[currentIndex]];
-              chart.tooltip.opacity = 0;
-              chart.update();
-              selectedIndex = -1;
-              return;
-            }
-
-            // choose the first color block
-            selectedIndex = currentIndex;
-            originalRadius = clickedElement.element.outerRadius;
-            chart.tooltip.opacity = 1;
-            clickedElement.element.outerRadius += 5;
-          }
+      // Highlight and swap color blocks
+      colorBlock.click(function () {
+        // click itself
+        if (colorBlock.hasClass("highlighted")) {
+          colorBlock.removeClass("highlighted");
+          selectedIndex = -1;
+          return;
         }
-      }
-    };
 
-    colorBlocksChart = new Chart(ctx, config);
+        const currentIndex = colorBlocksOrder.indexOf(blockSerial);
+        if (selectedIndex !== -1 && selectedIndex !== currentIndex) {
+          $(".color-block").removeClass("highlighted");
+          [colorBlocksOrder[currentIndex], colorBlocksOrder[selectedIndex]] = [colorBlocksOrder[selectedIndex], colorBlocksOrder[currentIndex]];
+          drawSquare();
+          selectedIndex = -1;
+          return;
+        }
+
+        colorBlock.addClass("highlighted");
+        selectedIndex = currentIndex;
+      });
+    }
   }
 
   function startTimer() {
@@ -258,7 +218,7 @@
     colorBlocksOrder = [];
     selectedIndex = -1;
     clearInterval(timerInterval);
-    colorBlocksChart?.destroy();
+    $colorBlocks.empty();
     $("#timer").empty();
     $("#result").empty();
   }
