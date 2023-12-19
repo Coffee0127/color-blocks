@@ -38,10 +38,12 @@
       --end: rgb(97, 68, 19);
     }
 
+    #colorBlocks {
+      display: grid;
+      gap: 5px 5px;
+    }
+
     .color-block {
-      width: 100px;
-      height: 100px;
-      margin: 5px;
       position: relative;
     }
 
@@ -91,6 +93,20 @@
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 <script>
   const MAX_AVAILABLE_COLOR_COUNT = 48;
+  const BLOCKS_DIMENSION = {
+    "low": {
+      "columns": 3,
+      "rows": 5
+    },
+    "medium": {
+      "columns": 5,
+      "rows": 9
+    },
+    "high": {
+      "columns": 8,
+      "rows": 18
+    }
+  };
   const $colorBlocks = $("#colorBlocks");
 
   // Global variables
@@ -150,15 +166,58 @@
   }
 
   function drawColorBlocks() {
-    $colorBlocks.empty();
+    const boundingClientRect = document.getElementById("screen3").getBoundingClientRect();
+    const screenWidth = Math.min(boundingClientRect.width, 600);
+    const columns = BLOCKS_DIMENSION[selectedDifficulty].columns;
+    const rows = BLOCKS_DIMENSION[selectedDifficulty].rows;
+    const gap = +$colorBlocks.css("gap").match(/^\d+/)[0];
+    const blockSize = (screenWidth - gap * (columns - 1)) / columns * 95 / 100;
 
-    for (const blockSerial of colorBlocksOrder) {
-      const colorBlock = $("<div>").addClass("color-block");
+    $colorBlocks.empty()
+      .css({
+        "grid-template-columns": `repeat(${columns}, ${blockSize}px)`,
+        "grid-template-rows": `repeat(${rows}, ${blockSize}px)`
+      });
+
+    function calculateGridCoordinates(columns, rows) {
+      const gridCoordinates = [];
+
+      // calculate the top
+      for (let col = 1; col <= columns; col++) {
+        gridCoordinates.push(`1 / ${col}`);
+      }
+
+      // calculate the right
+      for (let row = 2; row <= rows; row++) {
+        gridCoordinates.push(`${row} / ${columns}`);
+      }
+
+      // calculate the bottom
+      for (let col = columns - 1; col >= 1; col--) {
+        gridCoordinates.push(`${rows} / ${col}`);
+      }
+
+      // calculate the left
+      for (let row = rows - 1; row >= 2; row--) {
+        gridCoordinates.push(`${row} / 1`);
+      }
+
+      return gridCoordinates;
+    }
+
+    const gridCoordinates = calculateGridCoordinates(columns, rows);
+
+    for (let i = 0; i < colorBlocksOrder.length; i++) {
+      const blockSerial = colorBlocksOrder[i];
+      const colorBlock = $("<div>")
+        .addClass("color-block")
+        .css("grid-area", gridCoordinates[i]);
       const img = $("<img>")
         .attr({
-          "src": `assets/images/${selectedColor}/${blockSerial}.BMP`
-        })
-        .addClass("img-fluid");
+          "src": `assets/images/${selectedColor}/${blockSerial}.BMP`,
+          "width": blockSize,
+          "height": blockSize
+        });
       colorBlock.append(img);
       // TODO: remove this debugging info
       colorBlock.append($("<div>")
