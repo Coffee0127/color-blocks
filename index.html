@@ -184,11 +184,15 @@
     }
 
     const {begin, step} = getBeginAndStep(selectedDifficulty);
-    colorBlocksOrder = [];
-    for (let i = begin; i <= MAX_AVAILABLE_COLOR_COUNT; i += step) {
-      const insertPosition = Math.floor(Math.random() * (colorBlocksOrder.length + 1));
-      colorBlocksOrder.splice(insertPosition, 0, i);
-    }
+    colorBlocksOrder = [
+      begin,
+      ...Array
+        // minus 2 because we don't shuffle the first and last color block
+        .from({length: MAX_AVAILABLE_COLOR_COUNT / step - 2}, (_, i) => begin + (i + 1) * step)
+        // minus 0.5 to make it more random
+        .sort(() => Math.random() - 0.5),
+      MAX_AVAILABLE_COLOR_COUNT + begin - step
+    ]
 
     drawColorBlocks();
   }
