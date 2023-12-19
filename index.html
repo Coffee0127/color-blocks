@@ -38,6 +38,14 @@
       --end: rgb(97, 68, 19);
     }
 
+    #colorBlocksOperation {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+    }
+
     #colorBlocks {
       display: grid;
       gap: 5px 5px;
@@ -75,8 +83,10 @@
   </div>
 
   <div id="screen3" class="screen d-none flex-column align-items-center">
-    <div id="timer" class="mt-2"></div>
-    <button id="finishBtn" class="btn btn-primary mt-2">Finish</button>
+    <div id="colorBlocksOperation">
+      <div id="timer" class="row"></div>
+      <button id="finishBtn" class="btn btn-primary mt-2">Finish</button>
+    </div>
     <div id="colorBlocks" class="row mt-3"></div>
   </div>
 
@@ -95,17 +105,21 @@
   const BLOCKS_DIMENSION = {
     "low": {
       "columns": 3,
-      "rows": 5
+      "rows": 5,
+      "centerCoordinate": "3 / 2"
     },
     "medium": {
       "columns": 5,
-      "rows": 9
+      "rows": 9,
+      "centerCoordinate": "5 / 2 / auto / span 3"
     },
     "high": {
       "columns": 8,
-      "rows": 18
+      "rows": 18,
+      "centerCoordinate": "9 / 2 / auto / span 6"
     }
   };
+  const $colorBlocksOperation = $("#colorBlocksOperation");
   const $colorBlocks = $("#colorBlocks");
 
   // Global variables
@@ -280,6 +294,7 @@
     $colorBlocks.children().last().append($("<div>")
       .css(colorRangeCss)
       .html(colorRange[1]));
+    $colorBlocks.append($colorBlocksOperation.css("grid-area", BLOCKS_DIMENSION[selectedDifficulty].centerCoordinate));
   }
 
   function startTimer() {
@@ -297,7 +312,7 @@
     }, 1000);
   }
 
-  $("#finishBtn").click(function () {
+  $(document).on("click", "#finishBtn", function () {
     clearInterval(timerInterval);
     showScreen4();
   });
