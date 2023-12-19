@@ -118,21 +118,27 @@
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 <script>
   const MAX_AVAILABLE_COLOR_COUNT = 48;
-  const BLOCKS_DIMENSION = {
+  const BLOCKS_CONFIGURATION = {
     "low": {
-      "columns": 3,
-      "rows": 5,
-      "centerCoordinate": "3 / 2"
+      "dimension": {
+        "columns": 3,
+        "rows": 5,
+        "centerCoordinate": "3 / 2"
+      }
     },
     "medium": {
-      "columns": 5,
-      "rows": 9,
-      "centerCoordinate": "5 / 2 / auto / span 3"
+      "dimension": {
+        "columns": 5,
+        "rows": 9,
+        "centerCoordinate": "5 / 2 / auto / span 3"
+      }
     },
     "high": {
-      "columns": 8,
-      "rows": 18,
-      "centerCoordinate": "9 / 2 / auto / span 6"
+      "dimension": {
+        "columns": 8,
+        "rows": 18,
+        "centerCoordinate": "9 / 2 / auto / span 6"
+      }
     }
   };
   const $colorBlocksOperation = $("#colorBlocksOperation");
@@ -200,8 +206,8 @@
   function drawColorBlocks() {
     const boundingClientRect = document.getElementById("screen3").getBoundingClientRect();
     const screenWidth = Math.min(boundingClientRect.width, 600);
-    const columns = BLOCKS_DIMENSION[selectedDifficulty].columns;
-    const rows = BLOCKS_DIMENSION[selectedDifficulty].rows;
+    const columns = BLOCKS_CONFIGURATION[selectedDifficulty].dimension.columns;
+    const rows = BLOCKS_CONFIGURATION[selectedDifficulty].dimension.rows;
     const gap = +$colorBlocks.css("gap").match(/^\d+/)[0];
     const blockSize = (screenWidth - gap * (columns - 1)) / columns * 95 / 100;
 
@@ -310,7 +316,7 @@
     $colorBlocks.children().last().append($("<div>")
       .css(colorRangeCss)
       .html(colorRange[1]));
-    $colorBlocks.append($colorBlocksOperation.css("grid-area", BLOCKS_DIMENSION[selectedDifficulty].centerCoordinate));
+    $colorBlocks.append($colorBlocksOperation.css("grid-area", BLOCKS_CONFIGURATION[selectedDifficulty].dimension.centerCoordinate));
   }
 
   function startTimer() {
