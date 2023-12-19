@@ -209,10 +209,14 @@
   function drawColorBlocks() {
     const boundingClientRect = document.getElementById("screen3").getBoundingClientRect();
     const screenWidth = Math.min(boundingClientRect.width, 600);
+    const screenHeight = window.screen.availHeight;
     const columns = BLOCKS_CONFIGURATION[selectedDifficulty].dimension.columns;
     const rows = BLOCKS_CONFIGURATION[selectedDifficulty].dimension.rows;
     const gap = +$colorBlocks.css("gap").match(/^\d+/)[0];
-    const blockSize = (screenWidth - gap * (columns - 1)) / columns * 95 / 100;
+    const {totalSize, count} = screenHeight / rows < screenWidth / columns
+      ? {totalSize: screenHeight, count: rows}
+      : {totalSize: screenWidth, count: columns};
+    const blockSize = (totalSize - gap * (count - 1)) / count * 95 / 100;
 
     $colorBlocks.empty()
       .css({
