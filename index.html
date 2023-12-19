@@ -58,6 +58,13 @@
     .color-block.highlighted img {
       border: 1px dashed black;
     }
+
+    .debug-info {
+      position: absolute;
+      top: 5px;
+      left: 5px;
+      z-index: 1;
+    }
   </style>
 </head>
 
@@ -86,6 +93,10 @@
     <div id="colorBlocksOperation">
       <div id="timer" class="row"></div>
       <button id="finishBtn" class="btn btn-primary mt-2">Finish</button>
+      <div class="form-check mt-2">
+        <input class="form-check-input" type="checkbox" id="debugMode">
+        <label class="form-check-label" for="debugMode">🧐</label>
+      </div>
     </div>
     <div id="colorBlocks" class="row mt-3"></div>
   </div>
@@ -128,6 +139,7 @@
   let selectedIndex = -1;
   let colorBlocksOrder = [];
   let timerInterval;
+  let isDebug = false;
 
   // Screen 1: Color Selection
   $(".color-btn").click(function () {
@@ -230,14 +242,9 @@
           "height": blockSize
         });
       colorBlock.append(img);
-      // TODO: remove this debugging info
       colorBlock.append($("<div>")
-        .css({
-          "position": "absolute",
-          "top": "5px",
-          "left": "5px",
-          "z-index": " 1"
-        })
+        .addClass("debug-info")
+        .toggle(isDebug)
         .text(blockSerial));
       $colorBlocks.append(colorBlock);
 
@@ -315,6 +322,11 @@
   $(document).on("click", "#finishBtn", function () {
     clearInterval(timerInterval);
     showScreen4();
+  });
+
+  $(document).on("change", "#debugMode", function (e) {
+    isDebug = $(e.target).prop("checked");
+    $('.debug-info').toggle(isDebug);
   });
 
   function showScreen4() {
