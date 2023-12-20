@@ -97,6 +97,12 @@
       --end: #FF0000;
     }
 
+    .btn-difficulty {
+      width: 150px;
+      margin-bottom: 1em;
+      font-weight: bold;
+    }
+
     #colorBlocksOperation {
       display: flex;
       flex-direction: column;
@@ -194,12 +200,10 @@
   </div>
 
   <div id="screen2" class="screen d-none flex-column align-items-center">
-    <h1>Difficulty Selection</h1>
-    <div class="btn-group">
-      <button class="difficulty-btn btn btn-secondary" data-difficulty="low">Low</button>
-      <button class="difficulty-btn btn btn-secondary" data-difficulty="medium">Medium</button>
-      <button class="difficulty-btn btn btn-secondary" data-difficulty="high">High</button>
-    </div>
+    <h1 class="mb-3">Select Difficulty</h1>
+    <button class="btn-difficulty btn btn-success btn-lg" data-difficulty="easy">Easy<br/>12</button>
+    <button class="btn-difficulty btn btn-warning btn-lg" data-difficulty="normal">Normal<br/>24</button>
+    <button class="btn-difficulty btn btn-danger btn-lg" data-difficulty="hard">Hard<br/>48</button>
   </div>
 
   <div id="screen3" class="screen d-none flex-column align-items-center">
@@ -227,7 +231,7 @@
 <script>
   const MAX_AVAILABLE_COLOR_COUNT = 48;
   const BLOCKS_CONFIGURATION = {
-    "low": {
+    "easy": {
       "timer": 60,
       "dimension": {
         "columns": 3,
@@ -235,7 +239,7 @@
         "centerCoordinate": "3 / 2"
       }
     },
-    "medium": {
+    "normal": {
       "timer": 90,
       "dimension": {
         "columns": 5,
@@ -243,7 +247,7 @@
         "centerCoordinate": "5 / 2 / auto / span 3"
       }
     },
-    "high": {
+    "hard": {
       "timer": 120,
       "dimension": {
         "columns": 9,
@@ -278,7 +282,7 @@
   }
 
   // Screen 2: Difficulty Selection
-  $(".difficulty-btn").click(function () {
+  $(".btn-difficulty").click(function () {
     selectedDifficulty = $(this).data("difficulty");
     showScreen3();
   });
@@ -293,11 +297,11 @@
   function generateColorBlocks() {
     function getBeginAndStep(selectedDifficulty) {
       switch (selectedDifficulty) {
-        case "low":
+        case "easy":
           return {begin: Math.floor(Math.random() * 4) + 1, step: 4};
-        case "medium":
+        case "normal":
           return {begin: Math.floor(Math.random() * 2) + 1, step: 2};
-        case "high":
+        case "hard":
           return {begin: 1, step: 1};
       }
     }
