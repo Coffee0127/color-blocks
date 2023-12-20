@@ -25,35 +25,76 @@
       padding: 0.5em 0;
     }
 
+    .btn-color-container {
+      width: min(80%, 300px);
+      padding-bottom: 10px;
+    }
+
+    .btn-color-container:hover {
+      cursor: pointer;
+      filter: brightness(80%);
+    }
+
     .btn-color {
-      color: #fff;
+      height: 30px;
+      border: none;
       background: -webkit-linear-gradient(90deg, var(--begin), var(--end));
       background: linear-gradient(90deg, var(--begin), var(--end));
     }
 
-    .btn-color:hover {
-      color: #fff;
-      filter: brightness(85%);
+    .btn-color-violet-to-blue {
+      --begin: #BD5FC6;
+      --end: #0B02E2;
     }
 
-    .btn-color-green-to-red {
-      --begin: rgb(38, 91, 21);
-      --end: rgb(140, 26, 36);
+    .btn-color-blue-to-green {
+      --begin: #0519C5;
+      --end: #0A7E06;
     }
 
-    .btn-color-orange-to-blue {
-      --begin: rgb(235, 85, 40);
-      --end: rgb(79, 173, 169);
+    .btn-color-green-to-yellow {
+      --begin: #208B05;
+      --end: #E8EE09;
     }
 
-    .btn-color-purple-to-blue {
-      --begin: rgb(79, 35, 111);
-      --end: rgb(86, 86, 246);
+    .btn-color-yellow-to-orange {
+      --begin: #F4E409;
+      --end: #F4AA08;
     }
 
-    .btn-color-red-to-brown {
-      --begin: rgb(128, 23, 14);
-      --end: rgb(97, 68, 19);
+    .btn-color-orange-to-red {
+      --begin: #F49E07;
+      --end: #F41709;
+    }
+
+    .btn-color-violet-to-violet {
+      --begin: #F5F0FF;
+      --end: #8A2BE2;
+    }
+
+    .btn-color-blue-to-blue {
+      --begin: #D0EFFF;
+      --end: #0000FF;
+    }
+
+    .btn-color-green-to-green {
+      --begin: #E0FFE0;
+      --end: #006400;
+    }
+
+    .btn-color-yellow-to-yellow {
+      --begin: #FFFFE0;
+      --end: #FFD700;
+    }
+
+    .btn-color-orange-to-orange {
+      --begin: #FFF5E0;
+      --end: #FFA500;
+    }
+
+    .btn-color-red-to-red {
+      --begin: #FFF0F5;
+      --end: #FF0000;
     }
 
     #colorBlocksOperation {
@@ -94,13 +135,61 @@
     <div class="align-self-end">Fine Arts @ NTNU</div>
   </div>
 
-  <div id="screen1" class="screen d-none flex-column align-items-center">
-    <h1>Color Selection</h1>
-    <div class="btn-group">
-      <button class="color-btn btn btn-color btn-color-green-to-red" data-color="green-to-red">綠到紅</button>
-      <button class="color-btn btn btn-color btn-color-orange-to-blue" data-color="orange-to-blue">橘到藍</button>
-      <button class="color-btn btn btn-color btn-color-purple-to-blue" data-color="purple-to-blue">紫到藍</button>
-      <button class="color-btn btn btn-color btn-color-red-to-brown" data-color="red-to-brown">紅到棕</button>
+  <div id="screen1" class="screen d-none flex-column align-items-center text-center h-100">
+    <h1 class="mb-3">Select Color</h1>
+    <div class="row btn-color-container" data-color="violet-to-blue">
+      <div class="col-12 btn btn-color btn-color-violet-to-blue"></div>
+      <div class="col-5 text-right">Violet</div>
+      <div class="col-2">&#8594;</div>
+      <div class="col-5 text-left">Blue</div>
+    </div>
+    <div class="row btn-color-container" data-color="blue-to-green">
+      <div class="col-12 btn btn-color btn-color-blue-to-green"></div>
+      <div class="col-5 text-right">Blue</div>
+      <div class="col-2">&#8594;</div>
+      <div class="col-5 text-left">Green</div>
+    </div>
+    <div class="row btn-color-container" data-color="green-to-yellow">
+      <div class="col-12 btn btn-color btn-color-green-to-yellow"></div>
+      <div class="col-5 text-right">Green</div>
+      <div class="col-2">&#8594;</div>
+      <div class="col-5 text-left">Yellow</div>
+    </div>
+    <div class="row btn-color-container" data-color="yellow-to-orange">
+      <div class="col-12 btn btn-color btn-color-yellow-to-orange"></div>
+      <div class="col-5 text-right">Yellow</div>
+      <div class="col-2">&#8594;</div>
+      <div class="col-5 text-left">Orange</div>
+    </div>
+    <div class="row btn-color-container" data-color="orange-to-red">
+      <div class="col-12 btn btn-color btn-color-orange-to-red"></div>
+      <div class="col-5 text-right">Orange</div>
+      <div class="col-2">&#8594;</div>
+      <div class="col-5 text-left">Red</div>
+    </div>
+    <div class="row mt-5"></div>
+    <div class="row btn-color-container" data-color="violet-to-violet">
+      <div class="col-12 btn btn-color btn-color-violet-to-violet"></div>
+    </div>
+    <div class="row btn-color-container" data-color="blue-to-blue">
+      <div class="col-12 btn btn-color btn-color-blue-to-blue"></div>
+    </div>
+    <div class="row btn-color-container" data-color="green-to-green">
+      <div class="col-12 btn btn-color btn-color-green-to-green"></div>
+    </div>
+    <div class="row btn-color-container" data-color="yellow-to-yellow">
+      <div class="col-12 btn btn-color btn-color-yellow-to-yellow"></div>
+    </div>
+    <div class="row btn-color-container" data-color="orange-to-orange">
+      <div class="col-12 btn btn-color btn-color-orange-to-orange"></div>
+    </div>
+    <div class="row btn-color-container" data-color="red-to-red">
+      <div class="col-12 btn btn-color btn-color-red-to-red"></div>
+    </div>
+    <div class="row" style="width: min(80%, 300px)">
+      <div class="col-5 text-right">Light</div>
+      <div class="col-2">&#8594;</div>
+      <div class="col-5 text-left">Dark</div>
     </div>
   </div>
 
@@ -179,7 +268,7 @@
   });
 
   // Screen 1: Color Selection
-  $(".color-btn").click(function () {
+  $(".btn-color-container").click(function () {
     selectedColor = $(this).data("color");
     showScreen2();
   });
