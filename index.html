@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  <title>Color Craft</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <style>
+    * {
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: pan-x pan-y;
+    }
+
+    .btn-color {
+      color: #fff;
+      background: -webkit-linear-gradient(90deg, var(--begin), var(--end));
+      background: linear-gradient(90deg, var(--begin), var(--end));
+    }
+
+    .btn-color:hover {
+      color: #fff;
+      filter: brightness(85%);
+    }
+
+    .btn-color-green-to-red {
+      --begin: rgb(38, 91, 21);
+      --end: rgb(140, 26, 36);
+    }
+
+    .btn-color-orange-to-blue {
+      --begin: rgb(235, 85, 40);
+      --end: rgb(79, 173, 169);
+    }
+
+    .btn-color-purple-to-blue {
+      --begin: rgb(79, 35, 111);
+      --end: rgb(86, 86, 246);
+    }
+
+    .btn-color-red-to-brown {
+      --begin: rgb(128, 23, 14);
+      --end: rgb(97, 68, 19);
+    }
+
+    #colorBlocksOperation {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+    }
+
+    #colorBlocks {
+      display: grid;
+      gap: 5px 5px;
+    }
+
+    .color-block {
+      position: relative;
+    }
+
+    .color-block.highlighted img {
+      border: 1px dashed black;
+    }
+
+    .debug-info {
+      position: absolute;
+      top: 5px;
+      left: 5px;
+      z-index: 1;
+    }
+  </style>
+</head>
+
+<body>
+<div class="container">
+  <div id="screen1" class="screen d-flex flex-column align-items-center">
+    <h1>Color Selection</h1>
+    <div class="btn-group">
+      <button class="color-btn btn btn-color btn-color-green-to-red" data-color="green-to-red">綠到紅</button>
+      <button class="color-btn btn btn-color btn-color-orange-to-blue" data-color="orange-to-blue">橘到藍</button>
+      <button class="color-btn btn btn-color btn-color-purple-to-blue" data-color="purple-to-blue">紫到藍</button>
+      <button class="color-btn btn btn-color btn-color-red-to-brown" data-color="red-to-brown">紅到棕</button>
+    </div>
+  </div>
+
+  <div id="screen2" class="screen d-none flex-column align-items-center">
+    <h1>Difficulty Selection</h1>
+    <div class="btn-group">
+      <button class="difficulty-btn btn btn-secondary" data-difficulty="low">Low</button>
+      <button class="difficulty-btn btn btn-secondary" data-difficulty="medium">Medium</button>
+      <button class="difficulty-btn btn btn-secondary" data-difficulty="high">High</button>
+    </div>
+  </div>
+
+  <div id="screen3" class="screen d-none flex-column align-items-center">
+    <div id="colorBlocksOperation">
+      <div id="timer" class="row"></div>
+      <button id="finishBtn" class="btn btn-primary mt-2">Finish</button>
+      <div class="form-check mt-2">
+        <input class="form-check-input" type="checkbox" id="debugMode">
+        <label class="form-check-label" for="debugMode">🧐</label>
+      </div>
+    </div>
+    <div id="colorBlocks" class="row mt-3"></div>
+  </div>
+
+  <div id="screen4" class="screen d-none flex-column align-items-center">
+    <h1>Result</h1>
+    <div id="result"></div>
+    <button id="restartBtn" class="btn btn-primary mt-2">Restart</button>
+  </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script>
+  const MAX_AVAILABLE_COLOR_COUNT = 48;
+  const BLOCKS_CONFIGURATION = {
+    "low": {
+      "timer": 60,
+      "dimension": {
+        "columns": 3,
+        "rows": 5,
+        "centerCoordinate": "3 / 2"
+      }
+    },
+    "medium": {
+      "timer": 90,
+      "dimension": {
+        "columns": 5,
+        "rows": 9,
+        "centerCoordinate": "5 / 2 / auto / span 3"
+      }
+    },
+    "high": {
+      "timer": 120,
+      "dimension": {
+        "columns": 9,
+        "rows": 17,
+        "centerCoordinate": "9 / 2 / auto / span 7"
+      }
+    }
+  };
+  const $colorBlocksOperation = $("#colorBlocksOperation");
+  const $colorBlocks = $("#colorBlocks");
+
+  // Global variables
+  let selectedColor = "";
+  let selectedDifficulty = "";
+  let selectedIndex = -1;
+  let colorBlocksOrder = [];
+  let timerInterval;
+  let isDebug = false;
+
+  // Screen 1: Color Selection
+  $(".color-btn").click(function () {
+    selectedColor = $(this).data("color");
+    showScreen2();
+  });
+
+  function showScreen2() {
+    hideAllScreen();
+    showScreen("screen2");
+  }
+
+  // Screen 2: Difficulty Selection
+  $(".difficulty-btn").click(function () {
+    selectedDifficulty = $(this).data("difficulty");
+    showScreen3();
+  });
+
+  function showScreen3() {
+    hideAllScreen();
+    showScreen("screen3");
+    generateColorBlocks();
+    startTimer();
+  }
+
+  // Screen 3: Color Blocks
+  function generateColorBlocks() {
+    function getBeginAndStep(selectedDifficulty) {
+      switch (selectedDifficulty) {
+        case "low":
+          return {begin: Math.floor(Math.random() * 4) + 1, step: 4};
+        case "medium":
+          return {begin: Math.floor(Math.random() * 2) + 1, step: 2};
+        case "high":
+          return {begin: 1, step: 1};
+      }
+    }
+
+    const {begin, step} = getBeginAndStep(selectedDifficulty);
+    colorBlocksOrder = [
+      begin,
+      ...Array
+        // minus 2 because we don't shuffle the first and last color block
+        .from({length: MAX_AVAILABLE_COLOR_COUNT / step - 2}, (_, i) => begin + (i + 1) * step)
+        // minus 0.5 to make it more random
+        .sort(() => Math.random() - 0.5),
+      MAX_AVAILABLE_COLOR_COUNT + begin - step
+    ]
+
+    drawColorBlocks();
+  }
+
+  function drawColorBlocks() {
+    const boundingClientRect = document.getElementById("screen3").getBoundingClientRect();
+    const screenWidth = Math.min(boundingClientRect.width, 600);
+    const screenHeight = window.screen.availHeight;
+    const columns = BLOCKS_CONFIGURATION[selectedDifficulty].dimension.columns;
+    const rows = BLOCKS_CONFIGURATION[selectedDifficulty].dimension.rows;
+    const gap = +$colorBlocks.css("gap").match(/^\d+/)[0];
+    const {totalSize, count} = screenHeight / rows < screenWidth / columns
+      ? {totalSize: screenHeight, count: rows}
+      : {totalSize: screenWidth, count: columns};
+    const blockSize = (totalSize - gap * (count - 1)) / count * 95 / 100;
+
+    $colorBlocks.empty()
+      .css({
+        "grid-template-columns": `repeat(${columns}, ${blockSize}px)`,
+        "grid-template-rows": `repeat(${rows}, ${blockSize}px)`
+      });
+
+    function calculateGridCoordinates(columns, rows) {
+      const gridCoordinates = [];
+
+      // calculate the top
+      for (let col = 1; col <= columns; col++) {
+        gridCoordinates.push(`1 / ${col}`);
+      }
+
+      // calculate the right
+      for (let row = 2; row <= rows; row++) {
+        gridCoordinates.push(`${row} / ${columns}`);
+      }
+
+      // calculate the bottom
+      for (let col = columns - 1; col >= 1; col--) {
+        gridCoordinates.push(`${rows} / ${col}`);
+      }
+
+      // calculate the left
+      for (let row = rows - 1; row >= 2; row--) {
+        gridCoordinates.push(`${row} / 1`);
+      }
+
+      return gridCoordinates;
+    }
+
+    const gridCoordinates = calculateGridCoordinates(columns, rows);
+
+    for (let i = 0; i < colorBlocksOrder.length; i++) {
+      const blockSerial = colorBlocksOrder[i];
+      const colorBlock = $("<div>")
+        .addClass("color-block")
+        .css("grid-area", gridCoordinates[i]);
+      const img = $("<img>")
+        .attr({
+          "src": `assets/images/${selectedColor}/${blockSerial}.BMP`,
+          "width": blockSize,
+          "height": blockSize
+        });
+      colorBlock.append(img);
+      colorBlock.append($("<div>")
+        .addClass("debug-info")
+        .toggle(isDebug)
+        .text(blockSerial));
+      $colorBlocks.append(colorBlock);
+
+      // Highlight and swap color blocks
+      colorBlock.click(function () {
+        // click itself
+        if (colorBlock.hasClass("highlighted")) {
+          colorBlock.removeClass("highlighted");
+          selectedIndex = -1;
+          return;
+        }
+
+        const currentIndex = colorBlocksOrder.indexOf(blockSerial);
+        if (selectedIndex !== -1 && selectedIndex !== currentIndex) {
+          $(".color-block").removeClass("highlighted");
+          colorBlocksOrder.splice(currentIndex, 0, colorBlocksOrder.splice(selectedIndex, 1)[0]);
+          drawColorBlocks();
+          selectedIndex = -1;
+          return;
+        }
+
+        colorBlock.addClass("highlighted");
+        selectedIndex = currentIndex;
+      });
+    }
+
+    function calculateFontSizeRemRatio(deviceWidth) {
+      if (deviceWidth > 992) {
+        return 1.2;
+      } else if (deviceWidth < 576) {
+        return 0.8;
+      } else {
+        return 1;
+      }
+    }
+
+    let fontSizeRemRatio = calculateFontSizeRemRatio(boundingClientRect.width);
+    const colorRange = selectedColor.split("-to-").map(str => str.charAt(0).toUpperCase() + str.slice(1));
+    const colorRangeCss = {
+      "position": "absolute",
+      "top": "50%",
+      "z-index": " 1",
+      "text-align": "center",
+      "width": "100%",
+      "margin-top": `-${fontSizeRemRatio * parseFloat(getComputedStyle(document.documentElement).fontSize) / 2}px`,
+      "font-size": `${fontSizeRemRatio}rem`,
+      "font-weight": "bold",
+      "font-style": "italic"
+    };
+    $colorBlocks.children().first().append($("<div>")
+      .css(colorRangeCss)
+      .addClass("align-items-center")
+      .html(`${colorRange[0]}&#8680;`));
+    $colorBlocks.children().last().append($("<div>")
+      .css(colorRangeCss)
+      .html(colorRange[1]));
+    $colorBlocks.append($colorBlocksOperation.css("grid-area", BLOCKS_CONFIGURATION[selectedDifficulty].dimension.centerCoordinate));
+  }
+
+  function startTimer() {
+    let timeLeft = BLOCKS_CONFIGURATION[selectedDifficulty].timer;
+    $("#timer").text(`Time Left: ${timeLeft} seconds`);
+
+    timerInterval = setInterval(function () {
+      timeLeft--;
+      $("#timer").text(`Time Left: ${timeLeft} seconds`);
+
+      if (timeLeft === 0) {
+        clearInterval(timerInterval);
+        showScreen4();
+      }
+    }, 1000);
+  }
+
+  $(document).on("click", "#finishBtn", function () {
+    clearInterval(timerInterval);
+    showScreen4();
+  });
+
+  $(document).on("change", "#debugMode", function (e) {
+    isDebug = $(e.target).prop("checked");
+    $('.debug-info').toggle(isDebug);
+  });
+
+  function showScreen4() {
+    hideAllScreen();
+    showScreen("screen4");
+    calculateResult();
+  }
+
+  // Screen 4: Result
+  function calculateResult() {
+    let correctCount = 0;
+    const correctOrder = [...colorBlocksOrder].sort((a, b) => a - b);
+    for (let i = 0; i < correctOrder.length; i++) {
+      if (colorBlocksOrder[i] === correctOrder[i]) {
+        correctCount++;
+      }
+    }
+
+    let accuracy = `${correctCount} / ${colorBlocksOrder.length}`;
+    $("#result").text(`Accuracy: ${accuracy}`);
+  }
+
+  // Restart
+  $("#restartBtn").click(function () {
+    resetGame();
+    showScreen1();
+  });
+
+  function resetGame() {
+    selectedColor = "";
+    selectedDifficulty = "";
+    colorBlocksOrder = [];
+    selectedIndex = -1;
+    clearInterval(timerInterval);
+    $colorBlocks.empty();
+    $("#timer").empty();
+    $("#result").empty();
+  }
+
+  function showScreen1() {
+    hideAllScreen();
+    showScreen("screen1");
+  }
+
+  function showScreen(screenId) {
+    $(`#${screenId}`).removeClass("d-none").addClass("d-flex");
+  }
+
+  function hideAllScreen() {
+    $(".screen").addClass("d-none").removeClass("d-flex");
+  }
+</script>
+</body>
+
+</html>
