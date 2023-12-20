@@ -163,7 +163,6 @@
   });
 
   function showScreen2() {
-    hideAllScreen();
     showScreen("screen2");
   }
 
@@ -174,7 +173,6 @@
   });
 
   function showScreen3() {
-    hideAllScreen();
     showScreen("screen3");
     generateColorBlocks();
     startTimer();
@@ -353,7 +351,6 @@
   });
 
   function showScreen4() {
-    hideAllScreen();
     showScreen("screen4");
     calculateResult();
   }
@@ -375,7 +372,7 @@
   // Restart
   $("#restartBtn").click(function () {
     resetGame();
-    showScreen1();
+    showScreen("screen1");
   });
 
   function resetGame() {
@@ -389,17 +386,9 @@
     $("#result").empty();
   }
 
-  function showScreen1() {
-    hideAllScreen();
-    showScreen("screen1");
-  }
-
   function showScreen(screenId) {
-    $(`#${screenId}`).removeClass("d-none").addClass("d-flex");
-  }
-
-  function hideAllScreen() {
     $(".screen").addClass("d-none").removeClass("d-flex");
+    $(`#${screenId}`).removeClass("d-none").addClass("d-flex");
   }
 </script>
 </body>
