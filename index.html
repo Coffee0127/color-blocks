@@ -124,6 +124,12 @@
       border: 1px dashed black;
     }
 
+    #timer {
+      font-size: 2rem;
+      font-weight: bold;
+      font-family: sans-serif;
+    }
+
     .debug-info {
       position: absolute;
       top: 5px;
@@ -209,7 +215,7 @@
   <div id="screen3" class="screen d-none flex-column align-items-center">
     <div id="colorBlocksOperation">
       <div id="timer" class="row"></div>
-      <button id="finishBtn" class="btn btn-primary mt-2">Finish</button>
+      <button id="finishBtn" class="btn btn-primary btn-lg mt-2">Finish</button>
       <div class="form-check mt-2" style="position: absolute; bottom: 1em; left: 1em;">
         <input class="form-check-input" type="checkbox" id="debugMode">
         <label class="form-check-label" for="debugMode">🧐</label>
@@ -258,6 +264,7 @@
   };
   const $colorBlocksOperation = $("#colorBlocksOperation");
   const $colorBlocks = $("#colorBlocks");
+  const $timer = $("#timer");
 
   // Global variables
   let selectedColor = "";
@@ -442,21 +449,37 @@
 
   function startTimer() {
     let timeLeft = BLOCKS_CONFIGURATION[selectedDifficulty].timer;
-    $("#timer").text(`Time Left: ${timeLeft} seconds`);
+    let isTimerHighlighted = false;
+
+    function timeFormat(duration) {
+      const minutes = Math.floor(duration / 60);
+      const secs = Math.floor(duration % 60);
+      return minutes + ":" + (secs < 10 ? "0" : "") + secs;
+    }
+
+    $timer.text(timeFormat(timeLeft));
 
     timerInterval = setInterval(function () {
       timeLeft--;
-      $("#timer").text(`Time Left: ${timeLeft} seconds`);
+      $timer.text(timeFormat(timeLeft));
 
-      if (timeLeft === 0) {
-        clearInterval(timerInterval);
+      if (!isTimerHighlighted && timeLeft <= 10) {
+        $timer.addClass("text-danger");
+        isTimerHighlighted = true;
+      }
+
+      if (timeLeft <= 0) {
         showScreen4();
       }
     }, 1000);
   }
 
-  $(document).on("click", "#finishBtn", function () {
+  function stopTimer() {
+    $timer.removeClass("text-danger");
     clearInterval(timerInterval);
+  }
+
+  $(document).on("click", "#finishBtn", function () {
     showScreen4();
   });
 
@@ -466,6 +489,7 @@
   });
 
   function showScreen4() {
+    stopTimer();
     showScreen("screen4");
     calculateResult();
   }
@@ -495,9 +519,9 @@
     selectedDifficulty = "";
     colorBlocksOrder = [];
     selectedIndex = -1;
-    clearInterval(timerInterval);
+    stopTimer();
     $colorBlocks.empty();
-    $("#timer").empty();
+    $timer.empty();
     $("#result").empty();
   }
 
