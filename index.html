@@ -124,7 +124,7 @@
       font-weight: bold;
     }
 
-    #colorBlocksOperation {
+    #colorBlocksOperation, #colorBlocksResultOperation {
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -132,7 +132,7 @@
       text-align: center;
     }
 
-    #colorBlocks {
+    #colorBlocks, #colorBlocksResult {
       display: grid;
       gap: 5px 5px;
     }
@@ -142,13 +142,30 @@
     }
 
     .color-block.highlighted img {
-      border: 3px dashed black;
+      border: 3px dashed #666666;
+    }
+
+    #colorBlocksResult .color-block.highlighted img {
+      border: 2px solid #666666;
+    }
+
+    #colorBlocksResult .color-block.highlighted img:nth-child(1) {
+      border-right: none;
+    }
+
+    #colorBlocksResult .color-block.highlighted img:nth-child(2) {
+      border-left: none;
     }
 
     #timer {
       font-size: 2rem;
       font-weight: bold;
       font-family: sans-serif;
+    }
+
+    #result {
+      font-size: 2rem;
+      font-weight: bold;
     }
 
     .debug-info {
@@ -246,9 +263,13 @@
   </div>
 
   <div id="screen4" class="screen d-none flex-column align-items-center">
-    <h1>Result</h1>
-    <div id="result"></div>
-    <button id="restartBtn" class="btn btn-primary mt-2">Restart</button>
+    <div id="colorBlocksResultOperation">
+      <h1>Result</h1>
+      <div id="result"></div>
+      <button id="restartBtn" class="btn btn-primary mt-2">Restart</button>
+    </div>
+    <div id="colorBlocksResult"></div>
+    <div class="row mt-3">Left is your selection. Right is the correct color.</div>
   </div>
 </div>
 
@@ -284,8 +305,11 @@
     }
   };
   const $colorBlocksOperation = $("#colorBlocksOperation");
+  const $colorBlocksResultOperation = $("#colorBlocksResultOperation");
   const $colorBlocks = $("#colorBlocks");
+  const $colorBlocksResult = $("#colorBlocksResult");
   const $timer = $("#timer");
+  const containerWidth = document.getElementsByClassName("container")[0].getBoundingClientRect().width;
 
   // Global variables
   let selectedColor = "";
@@ -349,16 +373,7 @@
   }
 
   function drawColorBlocks() {
-    const boundingClientRect = document.getElementById("screen3").getBoundingClientRect();
-    const screenWidth = Math.min(boundingClientRect.width, 600);
-    const screenHeight = window.screen.availHeight;
-    const columns = BLOCKS_CONFIGURATION[selectedDifficulty].dimension.columns;
-    const rows = BLOCKS_CONFIGURATION[selectedDifficulty].dimension.rows;
-    const gap = +$colorBlocks.css("gap").match(/^\d+/)[0];
-    const {totalSize, count} = screenHeight / rows < screenWidth / columns
-      ? {totalSize: screenHeight, count: rows}
-      : {totalSize: screenWidth, count: columns};
-    const blockSize = (totalSize - gap * (count - 1)) / count * 95 / 100;
+    const {columns, rows, blockSize} = calculateDimension();
 
     $colorBlocks.empty()
       .css({
@@ -366,50 +381,14 @@
         "grid-template-rows": `repeat(${rows}, ${blockSize}px)`
       });
 
-    function calculateGridCoordinates(columns, rows) {
-      const gridCoordinates = [];
-
-      // calculate the top
-      for (let col = 1; col <= columns; col++) {
-        gridCoordinates.push(`1 / ${col}`);
-      }
-
-      // calculate the right
-      for (let row = 2; row <= rows; row++) {
-        gridCoordinates.push(`${row} / ${columns}`);
-      }
-
-      // calculate the bottom
-      for (let col = columns - 1; col >= 1; col--) {
-        gridCoordinates.push(`${rows} / ${col}`);
-      }
-
-      // calculate the left
-      for (let row = rows - 1; row >= 2; row--) {
-        gridCoordinates.push(`${row} / 1`);
-      }
-
-      return gridCoordinates;
-    }
-
     const gridCoordinates = calculateGridCoordinates(columns, rows);
 
     for (let i = 0; i < colorBlocksOrder.length; i++) {
       const blockSerial = colorBlocksOrder[i];
-      const colorBlock = $("<div>")
-        .addClass("color-block")
-        .css("grid-area", gridCoordinates[i]);
-      const img = $("<img>")
-        .attr({
-          "src": `assets/images/${selectedColor}/${blockSerial}.BMP`,
-          "width": blockSize,
-          "height": blockSize
-        });
+      const colorBlock = createColorBlockElement(gridCoordinates[i]);
+      const img = createImgElement(blockSerial, blockSize, blockSize);
       colorBlock.append(img);
-      colorBlock.append($("<div>")
-        .addClass("debug-info")
-        .toggle(isDebug)
-        .text(blockSerial));
+      colorBlock.append(createDebugInfo(blockSerial));
       $colorBlocks.append(colorBlock);
 
       // Highlight and swap color blocks
@@ -435,6 +414,32 @@
       });
     }
 
+    appendOperation($colorBlocks, $colorBlocksOperation);
+  }
+
+  function createColorBlockElement(gridCoordinate) {
+    return $("<div>")
+      .addClass("color-block")
+      .css("grid-area", gridCoordinate);
+  }
+
+  function createImgElement(blockSerial, width, height) {
+    return $("<img>")
+      .attr({
+        "src": `assets/images/${selectedColor}/${blockSerial}.BMP`,
+        "width": width,
+        "height": height
+      });
+  }
+
+  function createDebugInfo(blockSerial) {
+    return $("<div>")
+      .addClass("debug-info")
+      .toggle(isDebug)
+      .text(blockSerial);
+  }
+
+  function appendOperation(targetBlocks, blocksOperation) {
     function calculateFontSizeRemRatio(deviceWidth) {
       if (deviceWidth > 992) {
         return 1.2;
@@ -445,7 +450,7 @@
       }
     }
 
-    let fontSizeRemRatio = calculateFontSizeRemRatio(boundingClientRect.width);
+    const fontSizeRemRatio = calculateFontSizeRemRatio(containerWidth);
     const colorRange = selectedColor.split("-to-").map(str => str.charAt(0).toUpperCase() + str.slice(1));
     const colorRangeCss = {
       "position": "absolute",
@@ -458,14 +463,56 @@
       "font-weight": "bold",
       "font-style": "italic"
     };
-    $colorBlocks.children().first().append($("<div>")
-      .css(colorRangeCss)
-      .addClass("align-items-center")
-      .html(`${colorRange[0]}&#8680;`));
-    $colorBlocks.children().last().append($("<div>")
-      .css(colorRangeCss)
-      .html(colorRange[1]));
-    $colorBlocks.append($colorBlocksOperation.css("grid-area", BLOCKS_CONFIGURATION[selectedDifficulty].dimension.centerCoordinate));
+    targetBlocks.children().first().append(
+      $("<div>")
+        .css(colorRangeCss)
+        .addClass("align-items-center")
+        .html(`${colorRange[0]}&#8680;`));
+    targetBlocks.children().last().append(
+      $("<div>")
+        .css(colorRangeCss)
+        .html(colorRange[1]));
+    targetBlocks.append(
+      blocksOperation.css("grid-area", BLOCKS_CONFIGURATION[selectedDifficulty].dimension.centerCoordinate));
+  }
+
+  function calculateDimension() {
+    const screenWidth = Math.min(containerWidth, 600);
+    const screenHeight = window.screen.availHeight;
+    const columns = BLOCKS_CONFIGURATION[selectedDifficulty].dimension.columns;
+    const rows = BLOCKS_CONFIGURATION[selectedDifficulty].dimension.rows;
+    const gap = +$colorBlocks.css("gap").match(/^\d+/)[0];
+    const {totalSize, count} = screenHeight / rows < screenWidth / columns
+      ? {totalSize: screenHeight, count: rows}
+      : {totalSize: screenWidth, count: columns};
+    const blockSize = (totalSize - gap * (count - 1)) / count * 95 / 100;
+    return {columns, rows, blockSize};
+  }
+
+  function calculateGridCoordinates(columns, rows) {
+    const gridCoordinates = [];
+
+    // calculate the top
+    for (let col = 1; col <= columns; col++) {
+      gridCoordinates.push(`1 / ${col}`);
+    }
+
+    // calculate the right
+    for (let row = 2; row <= rows; row++) {
+      gridCoordinates.push(`${row} / ${columns}`);
+    }
+
+    // calculate the bottom
+    for (let col = columns - 1; col >= 1; col--) {
+      gridCoordinates.push(`${rows} / ${col}`);
+    }
+
+    // calculate the left
+    for (let row = rows - 1; row >= 2; row--) {
+      gridCoordinates.push(`${row} / 1`);
+    }
+
+    return gridCoordinates;
   }
 
   function startTimer() {
@@ -525,12 +572,43 @@
       }
     }
 
-    let accuracy = `${correctCount} / ${colorBlocksOrder.length}`;
-    $("#result").text(`Accuracy: ${accuracy}`);
+    const accuracy = `${correctCount} / ${colorBlocksOrder.length}`;
+    $("#result").html(`${accuracy}<br/>${(correctCount * 100 / colorBlocksOrder.length).toFixed(1)} %`);
+    drawColorBlocksResult(correctOrder);
+  }
+
+  function drawColorBlocksResult(correctOrder) {
+    const {columns, rows, blockSize} = calculateDimension();
+
+    $colorBlocksResult.empty()
+      .css({
+        "grid-template-columns": `repeat(${columns}, ${blockSize}px)`,
+        "grid-template-rows": `repeat(${rows}, ${blockSize}px)`
+      });
+
+    const gridCoordinates = calculateGridCoordinates(columns, rows);
+
+    for (let i = 0; i < colorBlocksOrder.length; i++) {
+      const blockSerial = colorBlocksOrder[i];
+      const correctBlockSerial = correctOrder[i];
+      const colorBlock = createColorBlockElement(gridCoordinates[i]);
+      const img = createImgElement(blockSerial, blockSize, blockSize);
+      colorBlock.append(img);
+      if (blockSerial !== correctBlockSerial) {
+        colorBlock.addClass("highlighted");
+        img.attr("width", blockSize / 2);
+        const correctImg = createImgElement(correctBlockSerial, blockSize / 2, blockSize);
+        colorBlock.append(correctImg);
+      }
+      colorBlock.append(createDebugInfo(blockSerial));
+      $colorBlocksResult.append(colorBlock);
+    }
+
+    appendOperation($colorBlocksResult, $colorBlocksResultOperation);
   }
 
   // Restart
-  $("#restartBtn").click(function () {
+  $(document).on("click", "#restartBtn", function () {
     resetGame();
     showScreen("screen0");
   });
