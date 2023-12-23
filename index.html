@@ -19,10 +19,31 @@
 
     .container {
       width: min(100%, 600px);
+      padding: 0;
     }
 
     .screen {
-      padding: 0.5em 0;
+      padding: 0.5em 15px;
+    }
+
+    #screen0 {
+      color: honeydew;
+      background-color: black;
+      overflow: hidden;
+    }
+
+    #screen0 #startBtn {
+      height: 2em;
+      font-size: 2em;
+      line-height: 2em;
+      font-weight: bold;
+      background: -webkit-linear-gradient(to right, violet, indigo, blue, green, yellow, orange, red);
+      background: linear-gradient(to right, violet, indigo, blue, green, yellow, orange, red);
+      transform: rotate(-20deg) skew(-20deg);
+      /* make wider to prevent unexpected blank */
+      width: calc((100% + 40px) / cos(20deg));
+      margin-left: -7.5%;
+      margin-bottom: calc(-45%);
     }
 
     .btn-color-container {
@@ -143,7 +164,7 @@
 <div class="container position-relative h-100">
   <div id="screen0" class="screen d-flex flex-column justify-content-between align-items-start h-100">
     <h1 class="align-self-start">Absolute Color Perception Improving Game</h1>
-    <button id="startBtn" class="btn btn-outline-danger btn-lg align-self-center">START</button>
+    <div id="startBtn" class="text-center">START</div>
     <div class="align-self-end">Fine Arts @ NTNU</div>
   </div>
 
