@@ -46,9 +46,30 @@
       margin-bottom: calc(-45%);
     }
 
+    @media screen and (orientation: landscape) {
+      .container {
+        width: 100%;
+        max-width: 100%;
+      }
+
+      #screen0 #startBtn {
+        transform: rotate(-8deg) skew(-8deg);
+        width: calc((100% + 50px) / cos(8deg));
+        margin-left: -4.5%;
+        margin-bottom: calc(-8%);
+      }
+
+      .hide-on-landscape {
+        display: none;
+      }
+    }
+
     .btn-color-container {
+      display: flex;
+      flex-wrap: wrap;
       width: min(80%, 300px);
       padding-bottom: 10px;
+      margin: 0 auto;
     }
 
     .btn-color-container:hover {
@@ -187,59 +208,65 @@
 
   <div id="screen1" class="screen d-none flex-column align-items-center text-center h-100">
     <h1 class="mb-3">Select Color</h1>
-    <div class="row btn-color-container" data-color="violet-to-blue">
-      <div class="col-12 btn btn-color btn-color-violet-to-blue"></div>
-      <div class="col-5 text-right">Violet</div>
-      <div class="col-2">&#8594;</div>
-      <div class="col-5 text-left">Blue</div>
-    </div>
-    <div class="row btn-color-container" data-color="blue-to-green">
-      <div class="col-12 btn btn-color btn-color-blue-to-green"></div>
-      <div class="col-5 text-right">Blue</div>
-      <div class="col-2">&#8594;</div>
-      <div class="col-5 text-left">Green</div>
-    </div>
-    <div class="row btn-color-container" data-color="green-to-yellow">
-      <div class="col-12 btn btn-color btn-color-green-to-yellow"></div>
-      <div class="col-5 text-right">Green</div>
-      <div class="col-2">&#8594;</div>
-      <div class="col-5 text-left">Yellow</div>
-    </div>
-    <div class="row btn-color-container" data-color="yellow-to-orange">
-      <div class="col-12 btn btn-color btn-color-yellow-to-orange"></div>
-      <div class="col-5 text-right">Yellow</div>
-      <div class="col-2">&#8594;</div>
-      <div class="col-5 text-left">Orange</div>
-    </div>
-    <div class="row btn-color-container" data-color="orange-to-red">
-      <div class="col-12 btn btn-color btn-color-orange-to-red"></div>
-      <div class="col-5 text-right">Orange</div>
-      <div class="col-2">&#8594;</div>
-      <div class="col-5 text-left">Red</div>
-    </div>
-    <div class="row mt-5"></div>
-    <div class="row btn-color-container" data-color="violet-to-violet">
-      <div class="col-12 btn btn-color btn-color-violet-to-violet"></div>
-    </div>
-    <div class="row btn-color-container" data-color="blue-to-blue">
-      <div class="col-12 btn btn-color btn-color-blue-to-blue"></div>
-    </div>
-    <div class="row btn-color-container" data-color="green-to-green">
-      <div class="col-12 btn btn-color btn-color-green-to-green"></div>
-    </div>
-    <div class="row btn-color-container" data-color="yellow-to-yellow">
-      <div class="col-12 btn btn-color btn-color-yellow-to-yellow"></div>
-    </div>
-    <div class="row btn-color-container" data-color="orange-to-orange">
-      <div class="col-12 btn btn-color btn-color-orange-to-orange"></div>
-    </div>
-    <div class="row btn-color-container" data-color="red-to-red">
-      <div class="col-12 btn btn-color btn-color-red-to-red"></div>
-    </div>
-    <div class="row" style="width: min(80%, 300px)">
-      <div class="col-5 text-right">Light</div>
-      <div class="col-2">&#8594;</div>
-      <div class="col-5 text-left">Dark</div>
+    <div class="row w-100 justify-content-center">
+      <div class="col-md-6 col-lg-12">
+        <div class="btn-color-container" data-color="violet-to-blue">
+          <div class="col-12 btn btn-color btn-color-violet-to-blue"></div>
+          <div class="col-5 text-right">Violet</div>
+          <div class="col-2">&#8594;</div>
+          <div class="col-5 text-left">Blue</div>
+        </div>
+        <div class="btn-color-container" data-color="blue-to-green">
+          <div class="col-12 btn btn-color btn-color-blue-to-green"></div>
+          <div class="col-5 text-right">Blue</div>
+          <div class="col-2">&#8594;</div>
+          <div class="col-5 text-left">Green</div>
+        </div>
+        <div class="btn-color-container" data-color="green-to-yellow">
+          <div class="col-12 btn btn-color btn-color-green-to-yellow"></div>
+          <div class="col-5 text-right">Green</div>
+          <div class="col-2">&#8594;</div>
+          <div class="col-5 text-left">Yellow</div>
+        </div>
+        <div class="btn-color-container" data-color="yellow-to-orange">
+          <div class="col-12 btn btn-color btn-color-yellow-to-orange"></div>
+          <div class="col-5 text-right">Yellow</div>
+          <div class="col-2">&#8594;</div>
+          <div class="col-5 text-left">Orange</div>
+        </div>
+        <div class="btn-color-container" data-color="orange-to-red">
+          <div class="col-12 btn btn-color btn-color-orange-to-red"></div>
+          <div class="col-5 text-right">Orange</div>
+          <div class="col-2">&#8594;</div>
+          <div class="col-5 text-left">Red</div>
+        </div>
+      </div>
+      <div class="col-lg-12 mt-5 hide-on-landscape"></div>
+      <div class="col-md-6 col-lg-12">
+        <div class="btn-color-container" data-color="violet-to-violet">
+          <div class="col-12 btn btn-color btn-color-violet-to-violet"></div>
+        </div>
+        <div class="btn-color-container" data-color="blue-to-blue">
+          <div class="col-12 btn btn-color btn-color-blue-to-blue"></div>
+        </div>
+        <div class="btn-color-container" data-color="green-to-green">
+          <div class="col-12 btn btn-color btn-color-green-to-green"></div>
+        </div>
+        <div class="btn-color-container" data-color="yellow-to-yellow">
+          <div class="col-12 btn btn-color btn-color-yellow-to-yellow"></div>
+        </div>
+        <div class="btn-color-container" data-color="orange-to-orange">
+          <div class="col-12 btn btn-color btn-color-orange-to-orange"></div>
+        </div>
+        <div class="btn-color-container" data-color="red-to-red">
+          <div class="col-12 btn btn-color btn-color-red-to-red"></div>
+        </div>
+        <div class="btn-color-container" style="width: min(80%, 300px)">
+          <div class="col-5 text-right">Light</div>
+          <div class="col-2">&#8594;</div>
+          <div class="col-5 text-left">Dark</div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -266,7 +293,7 @@
     <div id="colorBlocksResultOperation">
       <h1>Result</h1>
       <div id="result"></div>
-      <button id="restartBtn" class="btn btn-primary mt-2">Restart</button>
+      <button id="restartBtn" class="btn btn-primary mt-2">&#8634;</button>
     </div>
     <div id="colorBlocksResult"></div>
     <div class="row mt-3">Left is your selection. Right is the correct color.</div>
@@ -282,25 +309,46 @@
     "easy": {
       "timer": 60,
       "dimension": {
-        "columns": 3,
-        "rows": 5,
-        "centerCoordinate": "3 / 2"
+        "portrait": {
+          "columns": 3,
+          "rows": 5,
+          "centerCoordinate": "3 / 2 / auto / span 1"
+        },
+        "landscape": {
+          "columns": 5,
+          "rows": 3,
+          "centerCoordinate": "2 / 2 / auto / span 3"
+        }
       }
     },
     "normal": {
       "timer": 90,
       "dimension": {
-        "columns": 5,
-        "rows": 9,
-        "centerCoordinate": "5 / 2 / auto / span 3"
+        "portrait": {
+          "columns": 5,
+          "rows": 9,
+          "centerCoordinate": "5 / 2 / auto / span 3",
+        },
+        "landscape": {
+          "columns": 9,
+          "rows": 5,
+          "centerCoordinate": "3 / 2 / auto / span 7"
+        }
       }
     },
     "hard": {
       "timer": 120,
       "dimension": {
-        "columns": 9,
-        "rows": 17,
-        "centerCoordinate": "9 / 2 / auto / span 7"
+        "portrait": {
+          "columns": 9,
+          "rows": 17,
+          "centerCoordinate": "9 / 2 / auto / span 7",
+        },
+        "landscape": {
+          "columns": 17,
+          "rows": 9,
+          "centerCoordinate": "5 / 2 / auto / span 15"
+        }
       }
     }
   };
@@ -309,22 +357,29 @@
   const $colorBlocks = $("#colorBlocks");
   const $colorBlocksResult = $("#colorBlocksResult");
   const $timer = $("#timer");
-  const containerWidth = document.getElementsByClassName("container")[0].getBoundingClientRect().width;
 
   // Global variables
   let selectedColor = "";
   let selectedDifficulty = "";
   let selectedIndex = -1;
   let colorBlocksOrder = [];
+  let correctColorBlocksOrder = [];
   let timerInterval;
   let isDebug = false;
+
+  function getOrientationType() {
+    if (!window.screen.orientation) { // for backward compatibility
+      return window.innerHeight > window.innerWidth ? "portrait" : "landscape";
+    }
+    return window.screen.orientation.type.includes("portrait") ? "portrait" : "landscape";
+  }
 
   $("#startBtn").click(function () {
     showScreen("screen1");
   });
 
   // Screen 1: Color Selection
-  $(".btn-color-container").click(function () {
+  $(".btn-color-container:not(:last)").click(function () {
     selectedColor = $(this).data("color");
     showScreen2();
   });
@@ -450,7 +505,9 @@
       }
     }
 
-    const fontSizeRemRatio = calculateFontSizeRemRatio(containerWidth);
+    const fontSizeRemRatio =
+      calculateFontSizeRemRatio(
+        document.getElementsByClassName("container")[0].getBoundingClientRect().width);
     const colorRange = selectedColor.split("-to-").map(str => str.charAt(0).toUpperCase() + str.slice(1));
     const colorRangeCss = {
       "position": "absolute",
@@ -473,14 +530,16 @@
         .css(colorRangeCss)
         .html(colorRange[1]));
     targetBlocks.append(
-      blocksOperation.css("grid-area", BLOCKS_CONFIGURATION[selectedDifficulty].dimension.centerCoordinate));
+      blocksOperation.css(
+        "grid-area", BLOCKS_CONFIGURATION[selectedDifficulty].dimension[getOrientationType()].centerCoordinate));
   }
 
   function calculateDimension() {
-    const screenWidth = Math.min(containerWidth, 600);
-    const screenHeight = window.screen.availHeight;
-    const columns = BLOCKS_CONFIGURATION[selectedDifficulty].dimension.columns;
-    const rows = BLOCKS_CONFIGURATION[selectedDifficulty].dimension.rows;
+    const screenWidth = Math.min(window.innerWidth, 600);
+    const screenHeight = window.innerHeight;
+    const orientationType = getOrientationType();
+    const columns = BLOCKS_CONFIGURATION[selectedDifficulty].dimension[orientationType].columns;
+    const rows = BLOCKS_CONFIGURATION[selectedDifficulty].dimension[orientationType].rows;
     const gap = +$colorBlocks.css("gap").match(/^\d+/)[0];
     const {totalSize, count} = screenHeight / rows < screenWidth / columns
       ? {totalSize: screenHeight, count: rows}
@@ -565,19 +624,19 @@
   // Screen 4: Result
   function calculateResult() {
     let correctCount = 0;
-    const correctOrder = [...colorBlocksOrder].sort((a, b) => a - b);
-    for (let i = 0; i < correctOrder.length; i++) {
-      if (colorBlocksOrder[i] === correctOrder[i]) {
+    correctColorBlocksOrder = [...colorBlocksOrder].sort((a, b) => a - b);
+    for (let i = 0; i < correctColorBlocksOrder.length; i++) {
+      if (colorBlocksOrder[i] === correctColorBlocksOrder[i]) {
         correctCount++;
       }
     }
 
     const accuracy = `${correctCount} / ${colorBlocksOrder.length}`;
     $("#result").html(`${accuracy}<br/>${(correctCount * 100 / colorBlocksOrder.length).toFixed(1)} %`);
-    drawColorBlocksResult(correctOrder);
+    drawColorBlocksResult();
   }
 
-  function drawColorBlocksResult(correctOrder) {
+  function drawColorBlocksResult() {
     const {columns, rows, blockSize} = calculateDimension();
 
     $colorBlocksResult.empty()
@@ -590,7 +649,7 @@
 
     for (let i = 0; i < colorBlocksOrder.length; i++) {
       const blockSerial = colorBlocksOrder[i];
-      const correctBlockSerial = correctOrder[i];
+      const correctBlockSerial = correctColorBlocksOrder[i];
       const colorBlock = createColorBlockElement(gridCoordinates[i]);
       const img = createImgElement(blockSerial, blockSize, blockSize);
       colorBlock.append(img);
@@ -617,17 +676,27 @@
     selectedColor = "";
     selectedDifficulty = "";
     colorBlocksOrder = [];
+    correctColorBlocksOrder = [];
     selectedIndex = -1;
     stopTimer();
     $colorBlocks.empty();
-    $timer.empty();
-    $("#result").empty();
+    $colorBlocksResult.empty();
   }
 
   function showScreen(screenId) {
     $(".screen").addClass("d-none").removeClass("d-flex");
     $(`#${screenId}`).removeClass("d-none").addClass("d-flex");
   }
+
+  screen.orientation.addEventListener("change", () => {
+    if ($("#screen3").hasClass("d-flex")) {
+      drawColorBlocks();
+    }
+
+    if ($("#screen4").hasClass("d-flex")) {
+      drawColorBlocksResult();
+    }
+  });
 </script>
 </body>
 
