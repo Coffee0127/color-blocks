@@ -18,7 +18,8 @@
     }
 
     .container {
-      width: min(100%, 600px);
+      width: 100%;
+      max-width: 100%;
       padding: 0;
     }
 
@@ -47,11 +48,6 @@
     }
 
     @media screen and (orientation: landscape) {
-      .container {
-        width: 100%;
-        max-width: 100%;
-      }
-
       #screen0 #startBtn {
         transform: rotate(-8deg) skew(-8deg);
         width: calc((100% + 50px) / cos(8deg));
@@ -595,7 +591,7 @@
   }
 
   function calculateDimension() {
-    const screenWidth = Math.min(window.innerWidth, 600);
+    const screenWidth = window.innerWidth;
     const screenHeight = window.innerHeight;
     const orientationType = getOrientationType();
     const columns = BLOCKS_CONFIGURATION[selectedDifficulty].dimension[orientationType].columns;
